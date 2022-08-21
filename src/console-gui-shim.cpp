@@ -38,7 +38,6 @@
  * Released under GNU GPL, read the file 'COPYING' for more information
  */
 
-#ifdef WIN32
 #undef DATADIR
 #include <windows.h>
 
@@ -150,5 +149,3 @@ int main() {
 
     return 0;
 }
-
-#endif
