@@ -79,8 +79,8 @@ int main() {
     echo_thread_info stdin = {NULL, NULL, 4096};
     echo_thread_info stdout = {NULL, NULL, 4096};
     echo_thread_info stderr = {NULL, NULL, 4096};
-    // handles we'll pass to inkscape.exe
-    HANDLE inkscape_stdin, inkscape_stdout, inkscape_stderr;
+    // handles we'll pass to TARGET
+    HANDLE target_stdin, target_stdout, target_stderr;
     HANDLE stdin_thread, stdout_thread, stderr_thread;
 
     SECURITY_ATTRIBUTES sa;
@@ -88,15 +88,15 @@ int main() {
     sa.lpSecurityDescriptor = NULL;
     sa.bInheritHandle = TRUE;
 
-    // Determine the path to the Inkscape executable.
-    // Do this by looking up the name of this one and redacting the extension to ".exe"
+    // Determine the path to the TARGET executable.
+    // Do this by looking up the name of this one and converting the extension to ".exe"
     const int pathbuf = 2048;
-    WCHAR *inkscape = reinterpret_cast<WCHAR *>(LocalAlloc(LMEM_FIXED, pathbuf * sizeof(WCHAR)));
-    GetModuleFileNameW(NULL, inkscape, pathbuf);
-    WCHAR *dot_index = wcsrchr(inkscape, L'.');
+    WCHAR *target = reinterpret_cast<WCHAR *>(LocalAlloc(LMEM_FIXED, pathbuf * sizeof(WCHAR)));
+    GetModuleFileNameW(NULL, target, pathbuf);
+    WCHAR *dot_index = wcsrchr(target, L'.');
     wcsncpy(dot_index, L".exe", 4);
 
-    // we simply reuse our own command line for inkscape.exe
+    // we simply reuse our own command line for TARGET
     // it guarantees perfect behavior w.r.t. quoting
     WCHAR *cmd = GetCommandLineW();
 
@@ -104,9 +104,9 @@ int main() {
     stdin.echo_read = GetStdHandle(STD_INPUT_HANDLE);
     stdout.echo_write = GetStdHandle(STD_OUTPUT_HANDLE);
     stderr.echo_write = GetStdHandle(STD_ERROR_HANDLE);
-    CreatePipe(&inkscape_stdin, &stdin.echo_write, &sa, 0);
-    CreatePipe(&stdout.echo_read, &inkscape_stdout, &sa, 0);
-    CreatePipe(&stderr.echo_read, &inkscape_stderr, &sa, 0);
+    CreatePipe(&target_stdin, &stdin.echo_write, &sa, 0);
+    CreatePipe(&stdout.echo_read, &target_stdout, &sa, 0);
+    CreatePipe(&stderr.echo_read, &target_stderr, &sa, 0);
 
     // fill in standard IO handles to be used by the process
     PROCESS_INFORMATION pi;
@@ -115,13 +115,13 @@ int main() {
     ZeroMemory(&si, sizeof(STARTUPINFO));
     si.cb = sizeof(STARTUPINFO);
     si.dwFlags = STARTF_USESTDHANDLES;
-    si.hStdInput = inkscape_stdin;
-    si.hStdOutput = inkscape_stdout;
-    si.hStdError = inkscape_stderr;
+    si.hStdInput = target_stdin;
+    si.hStdOutput = target_stdout;
+    si.hStdError = target_stderr;
 
-    // spawn inkscape.exe
+    // spawn TARGET
     CreateProcessW(
-        inkscape, // path to inkscape.exe
+        target, // path to TARGET
         cmd, // command line as a single string
         NULL, // process security attributes - unused
         NULL, // thread security attributes - unused
@@ -133,12 +133,12 @@ int main() {
         &pi); // information about the created process - unused
 
     // clean up a bit
-    LocalFree(reinterpret_cast<HLOCAL>(inkscape));
+    LocalFree(reinterpret_cast<HLOCAL>(target));
     CloseHandle(pi.hThread);
     CloseHandle(pi.hProcess);
-    CloseHandle(inkscape_stdin);
-    CloseHandle(inkscape_stdout);
-    CloseHandle(inkscape_stderr);
+    CloseHandle(target_stdin);
+    CloseHandle(target_stdout);
+    CloseHandle(target_stderr);
 
     // create IO echo threads
     DWORD unused;
