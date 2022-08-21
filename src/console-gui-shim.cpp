@@ -14,16 +14,16 @@
  * To provide an Unix-like experience, where the application will behave
  * correctly in command line mode and at the same time won't create
  * the ugly console window when run from the GUI, we have to have two
- * executables. The first one, inkscape.exe, is the GUI application.
+ * executables. The first one, TARGET.exe, is the GUI application.
  * Its entry points are in main.cpp and winmain.cpp. The second one,
- * called inkscape.com, is a small helper application contained in
+ * called TARGET.com, is a small helper application contained in
  * this file. It spawns the GUI application and redirects its output
  * to the console.
  *
- * Note that inkscape.com has nothing to do with "compact executables"
+ * Note that TARGET.com has nothing to do with "compact executables"
  * from DOS. It's a normal PE executable renamed to .com. The trick
  * is that cmd.exe picks .com over .exe when both are present in PATH,
- * so when you type "inkscape" into the command prompt, inkscape.com
+ * so when you type "TARGET" into the command prompt, TARGET.com
  * gets run. The Windows program loader does not inspect the extension,
  * just like an Unix program loader; it determines the binary format
  * based on the contents of the file.
