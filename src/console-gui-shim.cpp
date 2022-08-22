@@ -38,6 +38,10 @@
  * Released under GNU GPL, read the file 'COPYING' for more information
  */
 
+// spell-checker:ignore (people) Jos Hirth * jh@kaioa.com , Krzysztof Kosinski * tweenk.pl@gmail.com
+// spell-checker:ignore (vars) HLOCAL LMEM pathbuf StartF StartupInfo StartupInfoW UseSTDHandles
+// spell-checker:ignore (WinOS) winmain
+
 #define _CRT_SECURE_NO_WARNINGS 1 // suppress lint complaint (deprecated-declarations)
 
 #undef DATADIR
