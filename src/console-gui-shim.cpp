@@ -38,6 +38,8 @@
  * Released under GNU GPL, read the file 'COPYING' for more information
  */
 
+#define _CRT_SECURE_NO_WARNINGS 1 // suppress lint complaint (deprecated-declarations)
+
 #undef DATADIR
 #include <windows.h>
 
