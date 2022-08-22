@@ -143,6 +143,10 @@ int main() {
     stdin_thread = CreateThread(NULL, 0, echo_thread, (void *)&stdin, 0, &unused);
     stdout_thread = CreateThread(NULL, 0, echo_thread, (void *)&stdout, 0, &unused);
     stderr_thread = CreateThread(NULL, 0, echo_thread, (void *)&stderr, 0, &unused);
+    // * suppress 'unused-but-set-variable' compiler error for IO threads
+    (void)stdin_thread;
+    (void)stdout_thread;
+    (void)stderr_thread;
 
     // wait until the standard output thread terminates
     WaitForSingleObject(stdout_thread, INFINITE);
