@@ -1,0 +1,9 @@
+# (Makefile) local target configuration (* after all functions/vars are defined)
+
+# spell-checker:ignore (make) OSID ifneq
+
+# * Project is WinOS-only
+ifneq (${OSID},win)
+$(call %error,WinOS only (project not applicable to non-WinOS platforms))
+##.or. `$(error WinOS only...)` in Makefile.config * slightly faster, but less visible UI
+endif
