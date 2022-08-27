@@ -1,9 +1,13 @@
 # (Makefile) local target configuration (* after all functions/vars are defined)
 
-# spell-checker:ignore (make) OSID ifneq
+# spell-checker:ignore (make) MSDOS OSID findstring ifneq
 
-# * Project is WinOS-only
+# * Project is WinOS-only and GUI-only
 ifneq (${OSID},win)
 $(call %error,WinOS only (project not applicable to non-WinOS platforms))
-##.or. `$(error WinOS only...)` in Makefile.config * slightly faster, but less visible UI
+##.or. `$(error ...)` in Makefile.config * slightly faster, but less visible UI
+endif
+ifneq ($(findstring msdos,${CC}),)
+$(call %error,requires WinOS-GUI support (project not compilable by console-only compilers))
+##.or. `$(error ...)` in Makefile.config * slightly faster, but less visible UI
 endif
