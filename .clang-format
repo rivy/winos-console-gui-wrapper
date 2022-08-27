@@ -1,0 +1,20 @@
+---
+# `clang-format` configuration; v2002.08.24
+# ref: <https://clang.llvm.org/docs/ClangFormatStyleOptions.html> @@ <https://archive.is/FiY7C>
+
+BasedOnStyle:  LLVM ## [ LLVM, Google, Chromium, Mozilla, WebKit, Microsoft, GNU ]
+
+# modifications:
+# * more vertically compact and a slightly wider read
+# * avoid reformatting comments
+# * when wrapped, operators lead the line
+
+---
+Language: Cpp
+AlignOperands: Align
+AllowShortBlocksOnASingleLine: Always
+AllowShortIfStatementsOnASingleLine: WithoutElse
+BreakBeforeBinaryOperators: true
+ColumnLimit: 100
+PenaltyBreakComment: 1000000000 # avoid breaking/re-wrapping comments
+...
