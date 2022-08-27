@@ -4,20 +4,22 @@
 	"version": "0.2.0",
 	"configurations": [
 		{
-			"name": "Build/debug project (32-bit)",
+			"name": "Debug (32-bit)",
 			"type": "cppdbg",
 			"request": "launch",
-			"program": "${fileDirname}/../${config:project.build_dir}/debug.(vscode)-x32/bin/${config:project.name}.exe",
-			"args": ["/?"], // * note: use this configuration array to add run-time arguments to the debugged process
+			"program": "${fileWorkspaceFolder}/${config:project.build_dir}/debug.(vscode)-x32/bin/${config:project.name}.exe",
+			"args": [], // * note: use this configuration array to add run-time arguments to the debugged process
+			// "args": ["/?"], // * note: use this configuration array to add run-time arguments to the debugged process
+			// "args": ["${fileWorkspaceFolder}/../causes-fault-single-line.txt"],
 			"stopAtEntry": false,
-			"cwd": "${fileDirname}/..",
+			"cwd": "${fileWorkspaceFolder}",
 			"environment": [],
 			"externalConsole": false,
 			"MIMode": "gdb",
 			"miDebuggerPath": "gdb.exe",
 			"setupCommands": [
 				{
-					"description": "Enable pretty-printing",
+					"description": "Enable GDB pretty-printing",
 					"text": "-enable-pretty-printing",
 					"ignoreFailures": true
 				},
@@ -26,16 +28,16 @@
 					"text": "set charset UTF-8"
 				}
 			],
-			"preLaunchTask": "Build project (gcc/32-bit/DEBUG)"
+			"preLaunchTask": "Build (gcc/32-bit/DEBUG)"
 		},
 		{
-			"name": "Build/debug project (64-bit)",
+			"name": "Debug (64-bit)",
 			"type": "cppdbg",
 			"request": "launch",
-			"program": "${fileDirname}/../${config:project.build_dir}/debug.(vscode)-x64/bin/${config:project.name}.exe",
+			"program": "${fileWorkspaceFolder}/${config:project.build_dir}/debug.(vscode)-x64/bin/${config:project.name}.exe",
 			"args": [], // * note: use this configuration array to add run-time arguments to the debugged process
 			"stopAtEntry": false,
-			"cwd": "${fileDirname}/..",
+			"cwd": "${fileWorkspaceFolder}",
 			"environment": [],
 			"externalConsole": false,
 			"MIMode": "gdb",
@@ -51,7 +53,7 @@
 					"text": "set charset UTF-8"
 				}
 			],
-			"preLaunchTask": "Build project (gcc/64-bit/DEBUG)"
+			"preLaunchTask": "Build (gcc/64-bit/DEBUG)"
 		}
 	]
 }
