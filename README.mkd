@@ -1,0 +1,133 @@
+# console-gui-shim
+
+`console-gui-shim` is a small WinOS-only helper executable for GUI applications that still need to behave well when launched from a command prompt.
+
+On WinOS, a GUI executable does not stay attached to the console the way a normal console program does. That means standard input, output, and error handling can be awkward when the same application should work both from Explorer and from `cmd.exe`/PowerShell. This project provides the console-side shim for that scenario.
+
+## Prerequisites
+
+- **WinOS**: This project is WinOS-only and will not build on other platforms.
+- **GNU Make**: Version 4.0 or later is required (`make --version` to check).
+  - Available via [Scoop](https://scoop.sh/) (`scoop install make`), [MSYS2](https://www.msys2.org/), or standalone builds.
+- **C++ Compiler** (one of the following):
+  - `clang` / `clang++` (LLVM-based, default if available)
+  - `gcc` / `g++` (MinGW-w64 recommended)
+  - `cl` (Microsoft Visual C++ Build Tools)
+  - `bcc32` / `embcc32` (Borland/Embarcadero C++, legacy support)
+
+## What It Does
+
+The program built from [`src/console-gui-shim.cpp`](src/console-gui-shim.cpp) is intended to be renamed with a `.com` extension and placed beside a same-named GUI `.exe`.
+
+When invoked:
+
+1. It finds its own executable path.
+2. It rewrites the extension from `.com` to `.exe`.
+3. It launches that GUI executable with the original command line.
+4. It creates pipes for `stdin`, `stdout`, and `stderr`.
+5. It forwards console I/O between the terminal and the GUI process.
+
+This relies on a useful WinOS command-resolution behavior: when both `name.com` and `name.exe` exist, `cmd.exe` prefers the `.com` file when you type `name`.
+
+## Expected Deployment Pattern
+
+The intended final layout is:
+
+```text
+your-app.com   <- this shim
+your-app.exe   <- the real GUI application
+```
+
+From a shell, users can type:
+
+```powershell
+your-app [args...]
+```
+
+and the shim will start `your-app.exe` while preserving console-style I/O behavior.
+
+## Repository Layout
+
+```text
+src/
+  console-gui-shim.cpp    Main shim implementation
+test/
+  test.cpp                Placeholder Catch2-based test
+Makefile                  Generic multi-compiler build system
+Makefile.target           Project-specific WinOS-only checks
+```
+
+## Build
+
+This repository uses GNU Make and is configured for WinOS builds only.
+
+The default build works with:
+
+- `clang` / `clang++`
+- `gcc` / `g++`
+- `cl` (MSVC)
+- some Borland/Embarcadero toolchains supported by the shared Makefile
+
+Common commands:
+
+```powershell
+make help
+make
+make build
+make rebuild
+make clean
+make realclean
+```
+
+On this checkout, `make help` reports the default output path as:
+
+```text
+#build/win.release.(clang@21.1)-x64/bin/console-gui-shim.exe
+```
+
+The build tree already contains example outputs for `cl`, `clang`, and `gcc` configurations under [`#build`](#build).
+
+## Configuration Notes
+
+Useful Make variables include:
+
+- `CC` to select the compiler
+- `ARCH=32` or `ARCH=64` to pick the target architecture
+- `DEBUG=true` to build without release optimizations
+- `STATIC=true|false` to control static linking
+- `VERBOSE=true` for more build output
+
+Examples:
+
+```powershell
+make CC=clang ARCH=64
+make CC=gcc ARCH=64 DEBUG=true
+make CC=cl ARCH=32
+```
+
+## Tests
+
+There is a Catch2-style test file at [`test/test.cpp`](test/test.cpp), and the Makefile exposes `make tests` / `make test`.
+
+At the moment, tests are not buildable as-is in this repository state:
+
+- `test/test.cpp` includes `<catch2/catch_test_macros.hpp>`
+- the expected Catch2 headers are not available on the compiler include path during `make tests`
+- `make tests` currently fails with a missing-header error
+
+So the test target should be treated as scaffolded rather than working out of the box.
+
+## Implementation Notes
+
+Some behavior worth knowing before reusing or modifying the shim:
+
+- It uses Win32 APIs directly: `CreatePipe`, `CreateProcessW`, `ReadFile`, `WriteFile`, and `CreateThread`.
+- It preserves the original command line via `GetCommandLineW()` instead of reconstructing arguments manually.
+- It assumes the real target executable has the same basename and lives in the same directory.
+- It waits for the stdout echo thread to finish before exiting.
+
+## License
+
+This repository includes a [`LICENSE`](LICENSE) file. The source header in [`src/console-gui-shim.cpp`](src/console-gui-shim.cpp) also attributes the original shim implementation to Jos Hirth and Krzysztof Kosinski.
+
+
