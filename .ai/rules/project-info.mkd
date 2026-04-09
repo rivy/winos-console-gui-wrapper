@@ -1,0 +1,136 @@
+# Project Information
+
+## Project Overview
+**Project Name**: Console GUI Shim
+**Description**: A Windows command-line wrapper that provides Unix-like behavior for Windows GUI applications. This project solves the Windows dual-executable problem where GUI executables don't show console output and console executables create a flashy console window when run from the GUI.
+
+## Core Concept
+Windows has two types of executables:
+- **GUI executables**: Detach immediately when run from command prompt (cmd.exe), causing standard output to disappear
+- **Console executables**: Display standard output but create an extra console window when run from GUI (even if hidden, it flashes briefly)
+
+The solution: Create two executables:
+1. **TARGET.exe** - The main GUI application
+2. **TARGET.com** - A small helper (this project) that spawns the GUI application and redirects its output to the console
+
+## Key Features
+- **Command-Line Wrapper**: Redirects stdin/stdout/stderr between console and GUI application
+- **Unix-like Experience**: Behaves correctly in both command-line and GUI modes
+- **No Console Flashing**: When run from GUI, doesn't create the ugly console window
+- **Extension Trick**: Uses .com extension so cmd.exe picks it over .exe when both are in PATH
+
+## Technical Details
+
+### Architecture
+- **Language**: C++
+- **Platform**: Windows only (WinOS-specific implementation)
+- **Build System**: GNU Make with cross-platform support
+- **Compilers Supported**: clang, gcc, MSVC (cl), Borland C++ (bcc32/embcc32)
+
+### Core Components
+1. **console-gui-shim.cpp**: Main implementation file
+2. **Makefile**: Cross-platform build configuration
+3. **Makefile.target**: WinOS-only configuration
+
+### Build Configuration
+- **Static Linking**: Enabled by default
+- **Multiple Architectures**: 32-bit and 64-bit support
+- **Multiple Compilers**: Support for various C++ compilers
+- **Debug/Release Builds**: Configurable build modes
+
+## File Structure
+```
+├── src/
+│   └── console-gui-shim.cpp    # Main source file
+├── test/                       # Test directory
+│   ├── catch2/                # Test framework
+│   └── test.cpp               # Test source
+├── .ai/rules/                  # AI configuration
+│   └── project-info.mkd       # This file
+├── .clang-format              # Code formatting configuration
+├── .editorconfig              # Editor configuration
+├── .gitattributes             # Git configuration
+├── .gitignore                 # Git ignore patterns
+├── LICENSE                    # GNU GPL v3 license
+├── Makefile                   # Main build configuration
+├── Makefile.target            # Target-specific configuration
+└── README.mkd                 # Project documentation
+```
+
+## Build Instructions
+
+### Prerequisites
+- Windows operating system
+- `make` version 4.0+
+- C++ compiler (clang, gcc, or MSVC)
+
+### Building
+```bash
+# Default build (clang, static linking)
+make
+
+# With specific compiler
+make CC=gcc
+make CC=cl
+
+# Debug build
+make DEBUG=1
+
+# 64-bit build
+make ARCH=64
+
+# Clean build
+make clean
+make realclean
+```
+
+### Usage
+The compiled `.com` executable should be:
+1. Named the same as the target GUI application (but with .com extension)
+2. Placed in the same directory as the GUI application
+3. When user types "TARGET" in command prompt, the .com wrapper runs
+4. The wrapper spawns the .exe GUI application and handles I/O redirection
+
+## Development Guidelines
+
+### Code Style
+- **Indentation**: 2 spaces for C++ files (configured in .editorconfig)
+- **Formatting**: clang-format compliant
+- **Naming**: Follows Windows API conventions
+
+### Project Rules
+1. **Windows Only**: This project is specifically for Windows platforms
+2. **GUI Application Focus**: Designed only for GUI applications needing console I/O
+3. **No Console Compilers**: Cannot be built with console-only compilers (e.g., MS-DOS compilers)
+
+### Testing
+- Uses Catch2 test framework
+- Test files located in `/test` directory
+- Run tests with: `make test`
+
+## Implementation Details
+
+### I/O Redirection
+The shim creates pipes for:
+- **stdin**: Console → GUI application
+- **stdout**: GUI application → Console
+- **stderr**: GUI application → Console
+
+Creates three worker threads to handle bidirectional I/O streaming.
+
+### Process Creation
+- Uses Windows API `CreateProcessW`
+- Inherits handles for I/O redirection
+- Uses same command line as original for perfect quoting behavior
+
+## License
+**GNU General Public License v3.0**
+
+## Authors
+- Jos Hirth <jh@kaioa.com>
+- Krzysztof Kosinski <tweenk.pl@gmail.com>
+- Roy Ivy III <rivy.dev@gmail.com> (maintainer)
+
+## Copyright
+Copyright (C) 2008-2010 Authors
+Released under GNU GPL, read the file 'COPYING' for more information
